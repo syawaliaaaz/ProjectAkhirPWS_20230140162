@@ -2,12 +2,12 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
-// Import semua routes
-const authRoutes = require('./routes/authRoutes');
-const petRoutes = require('./routes/petRoutes');
-const doctorRoutes = require('./routes/doctorRoutes');
-const serviceRoutes = require('./routes/serviceRoutes');
-const appointmentRoutes = require('./routes/appointmentRoutes');
+// Import semua routes (Jalur diperbaiki dengan menambahkan /src/)
+const authRoutes = require('./src/routes/authRoutes');
+const petRoutes = require('./src/routes/petRoutes');
+const doctorRoutes = require('./src/routes/doctorRoutes');
+const serviceRoutes = require('./src/routes/serviceRoutes');
+const appointmentRoutes = require('./src/routes/appointmentRoutes');
 
 // Inisialisasi Express
 const app = express();
