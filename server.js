@@ -13,6 +13,8 @@ const appointmentRoutes = require('./src/routes/appointmentRoutes');
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.static('public'));
+
 
 // Routing utama
 app.use('/api/auth', authRoutes);
