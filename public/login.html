@@ -1,34 +1,100 @@
-<div class="login-card">
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login PetCare 🐾</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body {
+            margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+        .login-container {
+            background: white; padding: 40px; border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; max-width: 400px; text-align: center;
+        }
+        h2 { color: #2c3e50; margin-bottom: 10px; }
+        p { color: #7f8c8d; font-size: 14px; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; margin-bottom: 5px; color: #34495e; font-weight: 600; font-size: 14px; }
+        input, select {
+            width: 100%; padding: 12px 15px; border: 2px solid #eee;
+            border-radius: 10px; outline: none; transition: 0.3s; font-size: 14px;
+        }
+        input:focus, select:focus { border-color: #27ae60; }
+        button {
+            width: 100%; padding: 12px; background: #27ae60; color: white; border: none;
+            border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 600;
+            transition: 0.3s; margin-top: 10px;
+        }
+        button:hover { background: #219150; transform: translateY(-2px); }
+        #error-msg { color: #e74c3c; font-size: 13px; margin-top: 15px; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
     <h2>Login PetCare 🐾</h2>
-    <input type="email" id="email" placeholder="Email (admin@mail.com)">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="handleLogin()">Masuk</button>
-    <p id="role-info" style="font-size: 12px; margin-top: 10px; color: #666;"></p>
+    <p>Silakan masuk ke akun klinik Anda</p>
+    
+    <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="contoh@mail.com" required>
+    </div>
+    
+    <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="********" required>
+    </div>
+
+    <div class="form-group">
+        <label>Masuk Sebagai</label>
+        <select id="role">
+            <option value="user">User / Pemilik Hewan</option>
+            <option value="admin">Admin Klinik</option>
+        </select>
+    </div>
+
+    <button onclick="handleLogin()">Masuk Sekarang</button>
+    <div id="error-msg">Email atau password salah!</div>
 </div>
 
 <script>
     async function handleLogin() {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
+        const role = document.getElementById('role').value;
+        const errorMsg = document.getElementById('error-msg');
 
-        const response = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        });
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password, role }) // Mengirim role ke backend
+            });
 
-        const data = await response.json();
-        if (data.token) {
-            localStorage.setItem('token', data.token);
-            
-            // Decode token untuk ambil Role
-            const payload = JSON.parse(atob(data.token.split('.')[1]));
-            localStorage.setItem('role', payload.role); // Simpan role ke storage
+            const data = await response.json();
 
-            alert(`Login Berhasil sebagai ${payload.role.toUpperCase()}`);
-            window.location.href = '/index.html';
-        } else {
-            alert('Login Gagal: ' + data.message);
+            if (response.ok && data.token) {
+                // Simpan data ke localStorage agar bisa dipakai di dashboard
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('userRole', role);
+                localStorage.setItem('userEmail', email);
+
+                alert(`Berhasil masuk sebagai ${role.toUpperCase()}`);
+                window.location.href = '/index.html';
+            } else {
+                errorMsg.innerText = data.message || "Login Gagal";
+                errorMsg.style.display = 'block';
+            }
+        } catch (err) {
+            errorMsg.innerText = "Terjadi kesalahan server";
+            errorMsg.style.display = 'block';
         }
     }
 </script>
+
+</body>
+</html>
