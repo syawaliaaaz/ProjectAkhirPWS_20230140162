@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetCare Dashboard 🐾</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background-color: #f4f7f6; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; text-align: center; }
+        .form-group { margin-bottom: 15px; }
+        input { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { background-color: #27ae60; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; width: 100%; }
+        button:hover { background-color: #219150; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #2c3e50; color: white; }
+        .btn-delete { background-color: #e74c3c; width: auto; padding: 5px 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>PetCare Management 🐾</h1>
+
+    <div style="background: #ecf0f1; padding: 15px; border-radius: 8px;">
+        <h3>Add New Pet</h3>
+        <div class="form-group">
+            <input type="text" id="petName" placeholder="Pet Name">
+        </div>
+        <div class="form-group">
+            <input type="text" id="petSpecies" placeholder="Species (e.g. Dog, Cat)">
+        </div>
+        <div class="form-group">
+            <input type="number" id="petAge" placeholder="Age">
+        </div>
+        <button onclick="addPet()">Save Pet</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Species</th>
+                <th>Age</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="petTableBody"></tbody>
+    </table>
+</div>
+
+<script>
+    const API_URL = '/api/pets';
+    // AMBIL TOKEN DARI LOCALSTORAGE (Hasil login)
+    const token = localStorage.getItem('token');
+
+    // Fungsi Ambil Data (Read)
+    async function loadPets() {
+        const response = await fetch(API_URL, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const pets = await response.json();
+        const tableBody = document.getElementById('petTableBody');
+        tableBody.innerHTML = '';
+
+        pets.forEach(pet => {
+            tableBody.innerHTML += `
+                <tr>
+                    <td>${pet.name}</td>
+                    <td>${pet.species}</td>
+                    <td>${pet.age}</td>
+                    <td>
+                        <button class="btn-delete" onclick="deletePet(${pet.id})">Delete</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    // Fungsi Tambah Data (Create)
+    async function addPet() {
+        const name = document.getElementById('petName').value;
+        const species = document.getElementById('petSpecies').value;
+        const age = document.getElementById('petAge').value;
+
+        await fetch(API_URL, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ name, species, age })
+        });
+
+        location.reload(); // Refresh data
+    }
+
+    // Fungsi Hapus Data (Delete)
+    async function deletePet(id) {
+        if(confirm('Are you sure?')) {
+            await fetch(`${API_URL}/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            loadPets();
+        }
+    }
+
+    // Jalankan saat halaman dibuka
+    if (!token) {
+        alert('Please login first!');
+    } else {
+        loadPets();
+    }
+</script>
+
+</body>
+</html>
