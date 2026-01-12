@@ -10,58 +10,39 @@
         input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
         button { width: 100%; padding: 10px; background: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; }
         button:hover { background: #219150; }
-        #message { color: red; text-align: center; font-size: 14px; margin-top: 10px; }
     </style>
 </head>
 <body>
-
 <div class="login-card">
     <h2>Login PetCare 🐾</h2>
-    <input type="email" id="email" placeholder="Email (user@example.com)">
+    <input type="email" id="email" placeholder="Email">
     <input type="password" id="password" placeholder="Password">
     <button onclick="handleLogin()">Masuk</button>
-    <div id="message"></div>
 </div>
 
 <script>
-    // Fungsi untuk membaca isi token (Payload)
     function getPayload(token) {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        return JSON.parse(window.atob(base64));
+        return JSON.parse(window.atob(token.split('.')[1]));
     }
 
     async function handleLogin() {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
-        const msgDiv = document.getElementById('message');
 
-        try {
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
 
-            const data = await response.json();
-
-            if (data.token) {
-                localStorage.setItem('token', data.token);
-                const user = getPayload(data.token);
-
-                // CEK ROLE DISINI
-                if (user.role === 'admin') {
-                    alert('Selamat datang Admin!');
-                    window.location.href = '/index.html'; // atau buat admin.html jika beda halaman
-                } else {
-                    alert('Selamat datang User!');
-                    window.location.href = '/index.html';
-                }
-            } else {
-                msgDiv.innerText = data.message || 'Login Gagal';
-            }
-        } catch (err) {
-            msgDiv.innerText = 'Server Error';
+        const data = await response.json();
+        if (data.token) {
+            localStorage.setItem('token', data.token);
+            const user = getPayload(data.token);
+            alert(`Selamat datang ${user.role}!`);
+            window.location.href = '/index.html';
+        } else {
+            alert(data.message || 'Login Gagal');
         }
     }
 </script>
