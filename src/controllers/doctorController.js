@@ -30,8 +30,13 @@ exports.updateDoctor = (req, res) => {
 
 exports.deleteDoctor = (req, res) => {
     const { id } = req.params;
-    db.query('DELETE FROM doctors WHERE id=?', [id], (err) => {
-        if (err) return res.status(500).json({ message: 'Failed to delete doctor', error: err });
-        res.json({ message: 'Doctor deleted successfully' });
+    // Hapus appointments terkait dulu
+    db.query('DELETE FROM appointments WHERE doctor_id=?', [id], (err) => {
+        if (err) return res.status(500).json({ message: 'Failed to delete related appointments', error: err });
+        // Baru hapus doctor
+        db.query('DELETE FROM doctors WHERE id=?', [id], (err) => {
+            if (err) return res.status(500).json({ message: 'Failed to delete doctor', error: err });
+            res.json({ message: 'Doctor deleted successfully' });
+        });
     });
 };

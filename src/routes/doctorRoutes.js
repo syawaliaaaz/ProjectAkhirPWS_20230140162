@@ -1,12 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const doctorController = require('../controllers/doctorController');
-// Tambahkan middleware auth jika hanya admin yang boleh edit dokter
-// const auth = require('../middleware/authMiddleware'); 
+const auth = require('../middlewares/authMiddleware');
 
-router.post('/', doctorController.createDoctor);
+router.post('/', auth, doctorController.createDoctor);
 router.get('/', doctorController.getDoctors);
-router.put('/:id', doctorController.updateDoctor);
-router.delete('/:id', doctorController.deleteDoctor);
+router.put('/:id', auth, doctorController.updateDoctor);
+router.delete('/:id', auth, doctorController.deleteDoctor);
 
 module.exports = router;

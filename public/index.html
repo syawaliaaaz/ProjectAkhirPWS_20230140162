@@ -8,20 +8,39 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
         :root { --primary: #27ae60; --dark: #2c3e50; }
-        body { background-color: #f4f7f6; font-family: 'Segoe UI', sans-serif; }
+        
+        body { 
+            background: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), 
+                        url('https://i.pinimg.com/originals/7c/4a/01/7c4a019488109d306660d5b5976b3252.jpg'); 
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: 'Segoe UI', sans-serif; 
+            min-height: 100vh;
+            margin: 0;
+        }
+
         .navbar { background-color: var(--primary) !important; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .nav-tabs .nav-link { color: #666; font-weight: 600; border: none; padding: 12px 20px; cursor: pointer; }
-        .nav-tabs .nav-link.active { color: var(--primary) !important; border-bottom: 3px solid var(--primary) !important; background: transparent; }
-        .card { border: none; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .nav-tabs .nav-link { color: #444; font-weight: 600; border: none; padding: 12px 20px; cursor: pointer; transition: 0.3s; }
+        .nav-tabs .nav-link:hover { color: var(--primary); }
+        .nav-tabs .nav-link.active { color: var(--primary) !important; border-bottom: 3px solid var(--primary) !important; background: rgba(255,255,255,0.7); border-radius: 10px 10px 0 0; }
+        
+        .card { 
+            border: none; 
+            border-radius: 15px; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1); 
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(10px); 
+        }
         .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
         
-        /* Perbaikan Warna Badge */
         .bg-pending { background: #fff3cd; color: #856404; }
         .bg-acc { background: #d4edda; color: #155724; }
         .bg-rejected { background: #f8d7da; color: #721c24; }
         .bg-reschedule { background: #e2e3e5; color: #383d41; }
         
-        .contact-widget { background: #eefaf2; border-radius: 20px; border-left: 5px solid var(--primary); }
+        .contact-widget { background: rgba(238, 250, 242, 0.9); border-radius: 20px; border-left: 5px solid var(--primary); }
     </style>
 </head>
 <body>
@@ -43,7 +62,7 @@
         <ul class="nav nav-tabs mb-4 border-0" id="mainTabs">
             <li class="nav-item"><a class="nav-link active" onclick="showTab('pets', this)">Data Pets</a></li>
             <li class="nav-item"><a class="nav-link" onclick="showTab('booking', this)">Buat Janji</a></li>
-            <li class="nav-item"><a class="nav-link" onclick="showTab('history', this)">Riwayat</a></li>
+            <li class="nav-item" id="historyTab"><a class="nav-link" onclick="showTab('history', this)">Riwayat</a></li>
             <li class="nav-item" id="adminTab" style="display:none;"><a class="nav-link text-danger" onclick="showTab('admin', this)">Admin Control</a></li>
         </ul>
 
@@ -51,15 +70,34 @@
             <div class="card p-4 mb-4">
                 <h5 class="fw-bold mb-3"><i class="bi bi-plus-circle me-2"></i>Tambah Hewan Peliharaan</h5>
                 <div class="row g-2">
-                    <div class="col-md-4"><input type="text" id="pName" class="form-control" placeholder="Nama Hewan"></div>
-                    <div class="col-md-3"><input type="text" id="pSpec" class="form-control" placeholder="Spesies (Kucing/Anjing)"></div>
-                    <div class="col-md-2"><input type="number" id="pAge" class="form-control" placeholder="Umur"></div>
-                    <div class="col-md-3"><button class="btn btn-success w-100 fw-bold" onclick="savePet()">Simpan Data</button></div>
+                    <div class="col-md-4">
+                        <input type="text" id="pName" class="form-control" placeholder="Nama Hewan">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" id="pSpec" class="form-control" list="speciesOptions" placeholder="Jenis Hewan">
+                        <datalist id="speciesOptions">
+                            <option value="Kucing">
+                            <option value="Anjing">
+                            <option value="Sapi">
+                            <option value="Kambing">
+                            <option value="Burung">
+                            <option value="Ikan">
+                        </datalist>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" id="pAge" class="form-control" placeholder="Umur">
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-success w-100 fw-bold" onclick="savePet()">Simpan Data</button>
+                    </div>
                 </div>
             </div>
+            
             <div class="card p-4">
                 <table class="table table-hover">
-                    <thead><tr><th>Nama Pet</th><th>Spesies</th><th>Umur</th><th>Aksi</th></tr></thead>
+                    <thead>
+                        <tr><th>Nama Pet</th><th>Spesies</th><th>Umur</th><th>Aksi</th></tr>
+                    </thead>
                     <tbody id="petTable"></tbody>
                 </table>
             </div>
@@ -68,10 +106,14 @@
         <div id="booking-section" class="tab-content" style="display:none;">
             <div class="card p-4 mx-auto" style="max-width: 600px;">
                 <h4 class="fw-bold text-center mb-4 text-success">Formulir Reservasi</h4>
-                <div class="mb-3"><label class="fw-bold">Pilih Pet Kamu</label><select id="selPet" class="form-select"></select></div>
-                <div class="mb-3"><label class="fw-bold">Pilih Dokter</label><select id="selDoc" class="form-select"></select></div>
-                <div class="mb-3"><label class="fw-bold">Layanan</label><select id="selServ" class="form-select"></select></div>
-                <div class="mb-3"><label class="fw-bold">Rencana Tanggal</label><input type="datetime-local" id="bDate" class="form-control"></div>
+                <div class="mb-3"><label class="fw-bold small">Pilih Pet Kamu</label><select id="selPet" class="form-select"></select></div>
+                <div class="mb-3"><label class="fw-bold small">Pilih Dokter</label><select id="selDoc" class="form-select"></select></div>
+                <div class="mb-3"><label class="fw-bold small">Layanan</label><select id="selServ" class="form-select"></select></div>
+                <div class="mb-3">
+                    <label class="fw-bold small">No. Handphone (WhatsApp)</label>
+                    <input type="text" id="pPhone" class="form-control" placeholder="Contoh: 08123456789">
+                </div>
+                <div class="mb-3"><label class="fw-bold small">Rencana Tanggal</label><input type="datetime-local" id="bDate" class="form-control"></div>
                 <button class="btn btn-success w-100 fw-bold py-2" onclick="bookNow()">Konfirmasi Booking</button>
             </div>
         </div>
@@ -79,10 +121,12 @@
         <div id="history-section" class="tab-content" style="display:none;">
             <div class="card p-4">
                 <h5 class="fw-bold mb-3">Status Reservasi Saya</h5>
-                <table class="table align-middle">
-                    <thead class="table-light"><tr><th>Pet</th><th>Dokter</th><th>Waktu</th><th>Status</th></tr></thead>
-                    <tbody id="historyTable"></tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead class="table-light"><tr><th>Pet</th><th>Dokter</th><th>Waktu</th><th>Status</th><th>Keterangan</th></tr></thead>
+                        <tbody id="historyTable"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -92,7 +136,7 @@
                 <div class="table-responsive">
                     <table class="table table-bordered align-middle">
                         <thead class="table-dark">
-                            <tr><th>User/Pet</th><th>Layanan/Dokter</th><th>Waktu</th><th>Status</th><th>Aksi Admin</th></tr>
+                            <tr><th>User / Pet</th><th>Kontak (No HP)</th><th>Layanan/Dokter</th><th>Waktu</th><th>Status</th><th>Keterangan</th><th>Aksi Admin</th></tr>
                         </thead>
                         <tbody id="adminTable"></tbody>
                     </table>
@@ -107,12 +151,8 @@
                     <p class="text-muted mb-0 small">Hubungi kami jika ada kendala atau ingin konsultasi darurat.</p>
                 </div>
                 <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                    <a href="tel:+62812345678" class="btn btn-success rounded-pill px-4 me-2 shadow-sm">
-                        <i class="bi bi-telephone-fill me-2"></i>Telepon
-                    </a>
-                    <a href="https://wa.me/62812345678" target="_blank" class="btn btn-outline-success rounded-pill px-4 shadow-sm">
-                        <i class="bi bi-chat-dots-fill me-2"></i>WhatsApp
-                    </a>
+                    <a href="tel:+62812345678" class="btn btn-success rounded-pill px-4 me-2 shadow-sm"><i class="bi bi-telephone-fill me-2"></i>Telepon</a>
+                    <a href="https://wa.me/62812345678" target="_blank" class="btn btn-outline-success rounded-pill px-4 shadow-sm"><i class="bi bi-chat-dots-fill me-2"></i>WhatsApp</a>
                 </div>
             </div>
         </div>
@@ -125,10 +165,13 @@
 
         if (!token) window.location.href = '/login.html';
 
-        // Set Profil User
         document.getElementById('userName').innerText = email ? email.split('@')[0] : 'User';
         document.getElementById('userRoleBadge').innerText = role ? role.toUpperCase() : 'USER';
-        if (role === 'admin') document.getElementById('adminTab').style.display = 'block';
+        
+        if (role === 'admin') {
+            document.getElementById('adminTab').style.display = 'block';
+            document.getElementById('historyTab').style.display = 'none';
+        }
 
         function showTab(id, el) {
             document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
@@ -136,20 +179,18 @@
             document.getElementById(id + '-section').style.display = 'block';
             el.classList.add('active');
 
-            // Auto-load data saat pindah tab
             if (id === 'pets') loadPets();
             if (id === 'booking') loadOptions();
             if (id === 'history') loadHistory();
             if (id === 'admin') loadAdminPanel();
         }
 
-        // --- CRUD PETS ---
         async function loadPets() {
             const res = await fetch('/api/pets', { headers: {'Authorization': `Bearer ${token}`} });
             const data = await res.json();
             document.getElementById('petTable').innerHTML = data.map(p => `
                 <tr>
-                    <td>${p.name}</td>
+                    <td><b>${p.name}</b></td>
                     <td>${p.species}</td>
                     <td>${p.age} thn</td>
                     <td><button class="btn btn-outline-danger btn-sm" onclick="delPet(${p.id})"><i class="bi bi-trash"></i></button></td>
@@ -161,7 +202,6 @@
             const name = document.getElementById('pName').value;
             const species = document.getElementById('pSpec').value;
             const age = document.getElementById('pAge').value;
-
             if(!name || !species || !age) return alert('Lengkapi data pet!');
 
             await fetch('/api/pets', { 
@@ -169,11 +209,7 @@
                 headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`}, 
                 body: JSON.stringify({ name, species, age }) 
             });
-            
-            // Clear input & refresh
-            document.getElementById('pName').value = '';
-            document.getElementById('pSpec').value = '';
-            document.getElementById('pAge').value = '';
+            document.getElementById('pName').value = ''; document.getElementById('pSpec').value = ''; document.getElementById('pAge').value = '';
             loadPets();
         }
 
@@ -183,27 +219,29 @@
             loadPets();
         }
 
-        // --- BOOKING ---
         async function loadOptions() {
             const [pets, docs, servs] = await Promise.all([
                 fetch('/api/pets', { headers: {'Authorization': `Bearer ${token}`} }).then(r => r.json()),
                 fetch('/api/doctors', { headers: {'Authorization': `Bearer ${token}`} }).then(r => r.json()),
                 fetch('/api/services', { headers: {'Authorization': `Bearer ${token}`} }).then(r => r.json())
             ]);
-            document.getElementById('selPet').innerHTML = pets.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+            document.getElementById('selPet').innerHTML = pets.map(p => `<option value="${p.id}">${p.name} (${p.species})</option>`).join('');
             document.getElementById('selDoc').innerHTML = docs.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
             document.getElementById('selServ').innerHTML = servs.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
         }
 
         async function bookNow() {
+            const phone = document.getElementById('pPhone').value;
+            const dateVal = document.getElementById('bDate').value;
+            if(!phone || !dateVal) return alert('Lengkapi No HP dan Tanggal!');
+
             const body = { 
                 pet_id: document.getElementById('selPet').value, 
                 doctor_id: document.getElementById('selDoc').value, 
                 service_id: document.getElementById('selServ').value, 
-                date: document.getElementById('bDate').value 
+                phone_number: phone,
+                date: dateVal 
             };
-
-            if(!body.date) return alert('Pilih tanggal dan jam!');
 
             const res = await fetch('/api/appointments', { 
                 method: 'POST', 
@@ -212,9 +250,11 @@
             });
             
             if(res.ok) {
-                alert('Berhasil Booking! Menunggu Persetujuan Admin.');
-                // Pindah ke tab riwayat
-                showTab('history', document.querySelectorAll('.nav-link')[2]);
+                alert('Berhasil Booking!');
+                const petName = document.getElementById('selPet').selectedOptions[0].text;
+                const message = `Halo Admin, saya booking untuk ${petName} pada ${new Date(dateVal).toLocaleString()}.`;
+                window.open(`https://wa.me/62812345678?text=${encodeURIComponent(message)}`, '_blank');
+                role === 'admin' ? showTab('admin', document.querySelector('#adminTab a')) : showTab('history', document.querySelector('#historyTab a'));
             }
         }
 
@@ -227,23 +267,25 @@
                     <td>${a.doctor_name}</td>
                     <td>${new Date(a.date).toLocaleString('id-ID')}</td>
                     <td><span class="status-badge bg-${a.status}">${a.status}</span></td>
+                    <td>${a.notes || '-'}</td>
                 </tr>
             `).join('');
         }
 
-        // --- ADMIN PANEL ---
         async function loadAdminPanel() {
             const res = await fetch('/api/appointments', { headers: {'Authorization': `Bearer ${token}`} });
             const data = await res.json();
             document.getElementById('adminTable').innerHTML = data.map(a => `
                 <tr>
-                    <td><b>${a.pet_name}</b><br><small class="text-muted">${a.user_email || 'Owner'}</small></td>
-                    <td>${a.doctor_name}<br><small class="text-muted">${a.service_name}</small></td>
+                    <td><strong>${a.user_name || 'User'}</strong><br><small class="text-muted">Pet: ${a.pet_name}</small></td>
+                    <td>${a.phone_number || '-'}</td>
+                    <td><strong>${a.doctor_name}</strong><br><small>${a.service_name}</small></td>
                     <td>${new Date(a.date).toLocaleString('id-ID')}</td>
                     <td><span class="status-badge bg-${a.status}">${a.status}</span></td>
+                    <td>${a.notes || '-'}</td>
                     <td>
                         <button class="btn btn-success btn-sm mb-1" onclick="updateStatus(${a.id}, 'acc')">ACC</button>
-                        <button class="btn btn-warning btn-sm mb-1 text-white" onclick="updateStatus(${a.id}, 'reschedule')">Jadwal Ulang</button>
+                        <button class="btn btn-warning btn-sm mb-1 text-white" onclick="updateStatus(${a.id}, 'reschedule')">Reschedule</button>
                         <button class="btn btn-danger btn-sm mb-1" onclick="updateStatus(${a.id}, 'rejected')">Tolak</button>
                     </td>
                 </tr>
@@ -251,23 +293,17 @@
         }
 
         async function updateStatus(id, status) {
-            const res = await fetch(`/api/appointments/${id}`, { 
+            const notes = prompt("Masukkan Keterangan/Hasil Pemeriksaan:", "");
+            await fetch(`/api/appointments/${id}`, { 
                 method: 'PUT', 
                 headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`}, 
-                body: JSON.stringify({ status }) 
+                body: JSON.stringify({ status, notes }) 
             });
-            if(res.ok) {
-                alert('Status Berhasil Diperbarui!');
-                loadAdminPanel();
-            }
+            loadAdminPanel();
         }
 
-        function logout() { 
-            localStorage.clear(); 
-            window.location.href = '/login.html'; 
-        }
-
-        // Load awal
+        function logout() { localStorage.clear(); window.location.href = '/login.html'; }
+        
         loadPets();
     </script>
 </body>

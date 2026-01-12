@@ -34,9 +34,14 @@ exports.updatePet = (req, res) => {
 
 exports.deletePet = (req, res) => {
   const { id } = req.params;
-  db.query('DELETE FROM pets WHERE id=?', [id], (err) => {
-    if (err) return res.status(500).json({ message: 'Failed to delete pet', error: err });
-    res.json({ message: 'Pet deleted successfully' });
+  // Hapus appointments terkait dulu
+  db.query('DELETE FROM appointments WHERE pet_id=?', [id], (err) => {
+    if (err) return res.status(500).json({ message: 'Failed to delete related appointments', error: err });
+    // Baru hapus pet
+    db.query('DELETE FROM pets WHERE id=?', [id], (err) => {
+      if (err) return res.status(500).json({ message: 'Failed to delete pet', error: err });
+      res.json({ message: 'Pet deleted successfully' });
+    });
   });
 };
 

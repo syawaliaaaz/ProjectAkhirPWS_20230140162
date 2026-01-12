@@ -30,8 +30,13 @@ exports.updateService = (req, res) => {
 
 exports.deleteService = (req, res) => {
     const { id } = req.params;
-    db.query('DELETE FROM services WHERE id=?', [id], (err) => {
-        if (err) return res.status(500).json({ message: 'Failed to delete service', error: err });
-        res.json({ message: 'Service deleted successfully' });
+    // Hapus appointments terkait dulu
+    db.query('DELETE FROM appointments WHERE service_id=?', [id], (err) => {
+        if (err) return res.status(500).json({ message: 'Failed to delete related appointments', error: err });
+        // Baru hapus service
+        db.query('DELETE FROM services WHERE id=?', [id], (err) => {
+            if (err) return res.status(500).json({ message: 'Failed to delete service', error: err });
+            res.json({ message: 'Service deleted successfully' });
+        });
     });
 };
