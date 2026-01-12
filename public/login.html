@@ -4,97 +4,79 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login PetCare 🐾</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body {
-            margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center;
-            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        body { 
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); 
+            height: 100vh; display: flex; align-items: center; font-family: 'Poppins', sans-serif;
         }
-        .login-container {
-            background: white; padding: 40px; border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; max-width: 400px; text-align: center;
-        }
-        h2 { color: #2c3e50; margin-bottom: 10px; }
-        p { color: #7f8c8d; font-size: 14px; margin-bottom: 30px; }
-        .form-group { margin-bottom: 20px; text-align: left; }
-        label { display: block; margin-bottom: 5px; color: #34495e; font-weight: 600; font-size: 14px; }
-        input, select {
-            width: 100%; padding: 12px 15px; border: 2px solid #eee;
-            border-radius: 10px; outline: none; transition: 0.3s; font-size: 14px;
-        }
-        input:focus, select:focus { border-color: #27ae60; }
-        button {
-            width: 100%; padding: 12px; background: #27ae60; color: white; border: none;
-            border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 600;
-            transition: 0.3s; margin-top: 10px;
-        }
-        button:hover { background: #219150; transform: translateY(-2px); }
-        #error-msg { color: #e74c3c; font-size: 13px; margin-top: 15px; display: none; }
+        .login-card { border-radius: 20px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .btn-primary { background-color: #27ae60; border: none; padding: 12px; border-radius: 10px; font-weight: 600; }
+        .btn-primary:hover { background-color: #219150; transform: translateY(-2px); transition: 0.3s; }
+        input, select { border-radius: 10px !important; padding: 12px !important; border: 1px solid #ddd !important; }
     </style>
 </head>
 <body>
-
-<div class="login-container">
-    <h2>Login PetCare 🐾</h2>
-    <p>Silakan masuk ke akun klinik Anda</p>
-    
-    <div class="form-group">
-        <label>Email</label>
-        <input type="email" id="email" placeholder="contoh@mail.com" required>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <div class="card login-card p-4">
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold text-success">PetCare 🐾</h2>
+                        <p class="text-muted small">Solusi Kesehatan Anabul Kesayangan</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Email Address</label>
+                        <input type="email" id="email" class="form-control" placeholder="admin@mail.com">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Password</label>
+                        <input type="password" id="password" class="form-control" placeholder="********">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Masuk Sebagai</label>
+                        <select id="role" class="form-select">
+                            <option value="user">User / Pemilik Hewan</option>
+                            <option value="admin">Admin Klinik</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary w-100" onclick="login()">Masuk Sekarang</button>
+                    <div id="msg" class="text-danger mt-3 text-center small" style="display:none; background:#f8d7da; padding:10px; border-radius:8px;"></div>
+                </div>
+            </div>
+        </div>
     </div>
-    
-    <div class="form-group">
-        <label>Password</label>
-        <input type="password" id="password" placeholder="********" required>
-    </div>
 
-    <div class="form-group">
-        <label>Masuk Sebagai</label>
-        <select id="role">
-            <option value="user">User / Pemilik Hewan</option>
-            <option value="admin">Admin Klinik</option>
-        </select>
-    </div>
+    <script>
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+            const msg = document.getElementById('msg');
 
-    <button onclick="handleLogin()">Masuk Sekarang</button>
-    <div id="error-msg">Email atau password salah!</div>
-</div>
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, role })
+                });
 
-<script>
-    async function handleLogin() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const role = document.getElementById('role').value;
-        const errorMsg = document.getElementById('error-msg');
-
-        try {
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password, role }) // Mengirim role ke backend
-            });
-
-            const data = await response.json();
-
-            if (response.ok && data.token) {
-                // Simpan data ke localStorage agar bisa dipakai di dashboard
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('userRole', role);
-                localStorage.setItem('userEmail', email);
-
-                alert(`Berhasil masuk sebagai ${role.toUpperCase()}`);
-                window.location.href = '/index.html';
-            } else {
-                errorMsg.innerText = data.message || "Login Gagal";
-                errorMsg.style.display = 'block';
+                const data = await res.json();
+                if (res.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('userEmail', email);
+                    localStorage.setItem('userRole', role);
+                    window.location.href = '/index.html';
+                } else {
+                    msg.innerText = data.message || "Login Gagal!";
+                    msg.style.display = 'block';
+                }
+            } catch (e) {
+                msg.innerText = "Koneksi server terputus!";
+                msg.style.display = 'block';
             }
-        } catch (err) {
-            errorMsg.innerText = "Terjadi kesalahan server";
-            errorMsg.style.display = 'block';
         }
-    }
-</script>
-
+    </script>
 </body>
 </html>
