@@ -1,33 +1,33 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
-// Import semua routes (Jalur diperbaiki dengan menambahkan /src/)
+const app = express();
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+// Melayani file statis dari folder 'public'
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Import Routes
 const authRoutes = require('./src/routes/authRoutes');
 const petRoutes = require('./src/routes/petRoutes');
 const doctorRoutes = require('./src/routes/doctorRoutes');
 const serviceRoutes = require('./src/routes/serviceRoutes');
 const appointmentRoutes = require('./src/routes/appointmentRoutes');
 
-// Inisialisasi Express
-const app = express();
-app.use(cors());
-app.use(express.json());
-app.use(express.static('public'));
-
-
-// Routing utama
+// Definisi Jalur API
 app.use('/api/auth', authRoutes);
 app.use('/api/pets', petRoutes);
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/appointments', appointmentRoutes);
 
-// Root endpoint
-app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to PetCare Service API 🐾' });
-});
-
-// Jalankan server
+// Jalankan Server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📂 Web Dashboard: http://localhost:${PORT}`);
+});
