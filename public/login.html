@@ -1,30 +1,12 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>Login PetCare 🐾</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f4f7f6; }
-        .login-card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 300px; }
-        h2 { text-align: center; color: #2c3e50; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        button:hover { background: #219150; }
-    </style>
-</head>
-<body>
 <div class="login-card">
     <h2>Login PetCare 🐾</h2>
-    <input type="email" id="email" placeholder="Email">
+    <input type="email" id="email" placeholder="Email (admin@mail.com)">
     <input type="password" id="password" placeholder="Password">
     <button onclick="handleLogin()">Masuk</button>
+    <p id="role-info" style="font-size: 12px; margin-top: 10px; color: #666;"></p>
 </div>
 
 <script>
-    function getPayload(token) {
-        return JSON.parse(window.atob(token.split('.')[1]));
-    }
-
     async function handleLogin() {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
@@ -38,13 +20,15 @@
         const data = await response.json();
         if (data.token) {
             localStorage.setItem('token', data.token);
-            const user = getPayload(data.token);
-            alert(`Selamat datang ${user.role}!`);
+            
+            // Decode token untuk ambil Role
+            const payload = JSON.parse(atob(data.token.split('.')[1]));
+            localStorage.setItem('role', payload.role); // Simpan role ke storage
+
+            alert(`Login Berhasil sebagai ${payload.role.toUpperCase()}`);
             window.location.href = '/index.html';
         } else {
-            alert(data.message || 'Login Gagal');
+            alert('Login Gagal: ' + data.message);
         }
     }
 </script>
-</body>
-</html>
